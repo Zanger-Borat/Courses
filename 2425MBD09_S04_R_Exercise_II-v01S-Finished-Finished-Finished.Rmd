@@ -1,0 +1,424 @@
+---
+title: "R Session 2S"
+output: html_notebook
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# 1. In-class Demo
+
+### Example 1: Manufactured Bolt
+
+```{r}
+# First Z-test, here we try to assess if there is a significant difference between the sample and the mean of the population. #We use critical valuue approach
+z_stat <- (29.84 -30) / (0.8 /sqrt (100))
+z_stat
+# Critical value 
+z_value <- qnorm(0.025)
+z_value 
+z_stat < z_value #Decision rule 
+#P_value 
+p_value <- pnorm(z_stat)
+p_value#Here it is only one tail
+p_value <- 2*pnorm(z_stat)
+p_value#Since we use 2 tail
+p_value < 0.05
+
+#function approach
+install.packages("BSDA")
+library(BSDA)
+zsum.test(mean.x=29.84,
+          sigma.x =0.8,
+          n.x=100,
+          mu=30, 
+          alternative="two.sided",
+          conf.level=0.95) #ɑ = 0.05
+#Z = critical value
+#p-value =p_value
+# check p-value compared to ɑ
+
+```
+
+### Example 2: Hotel Cost
+
+```{r}
+t_stat <- (172.5 -168) / (15.4/sqrt(25))
+t_stat
+#Critical value 
+t_value <- qt(0.025, df=24)
+t_value
+- t_stat < t_value # Decision rule 
+#P_value
+p_value <- pt(0.025, df=24) #for normal distribution
+p_value < 0.025 #decison rule
+
+#Solution 3 :
+tsum.test(mean.x=172.5, s.x=15.4, n.x =25, mu=168, alternative = "two.sided", conf.level=0.95) #since we already gave n.x we don't need df.
+```
+
+### Example 3: Mailing
+
+```{r}
+prop.test(x=25,
+          n=500,
+          p=0.08,
+          alternative="two.sided",
+          conf.level = 0.95) #There is d a difference
+prop.test(x=25,
+          n=500,
+          p=0.08,
+          alternative="two.sided",
+          conf.level = 0.95,
+          correct="False")
+#Since we have a binomial law so we put correct= "false"
+
+```
+
+### Example 4: Questionnaire (I)
+
+```{r}
+x <- c(69,75,76,80,81,82,86,89,91,92,97)#h0 mu = 82
+t.test(x=x,
+       mu=82,
+       alternative="two.sided",
+       conf.level=0.95)
+# ho = mu  <= 82 H1 > 82
+x <- c(69,75,76,80,81,82,86,89,91,92,97)#h0 mu = 82
+t.test(x=x,
+       mu=82,
+       alternative="greater",
+       conf.level=0.95)
+#If data : t-test if only parameter tsum.test
+```
+
+### Example 5: Dividend Yield
+
+```{r}
+tsum.test(mean.x=3.27,
+          s.x=1.3,
+          n.x=21,
+          mean.y=2.53,
+          s.y=1.16,
+          n.y=25,
+          alternative="two.sided",
+          conf.level=0.95,
+          var.equal = TRUE)
+
+```
+
+### Example 6: Questionnaire (II)
+
+```{r}
+x <- c(69,75,76,80,81,82,86,89,91,92,97)
+y <- c(59,62,66,70,70,75,75,77,78,79,81,84,84,86,84)
+t.test(x=x,
+       y=y,
+       alternative = "two.sided",
+       conf.level=0.95,
+       var.equal=TRUE)#Variances between the two is true
+```
+
+### Example 7: Training Workshop
+
+```{r}
+x1 <- c(6,20,3,0,4)
+x2 <- c(4,6,2,0,0)
+t.test(x=x1,
+       y=x2,
+       alternative="two.sided",
+       conf.level=0.99,
+       paired=TRUE)#If absent it is just a T-TEST : exam question 
+```
+
+### Example 8: Proposition Votes
+
+```{r}
+prop.test(x=c(36,35),
+          n=c(72,50),
+          alternative="two.sided",
+          conf.level=0.95,
+          correct=FALSE)
+
+```
+
+### Example 9: Assembly Line : anova
+
+```{r}
+#Data preparation
+df1<- data.frame(x="A", y=c(58,64,55,66,67))
+df2<- data.frame(x="B", y=c(58,69,71,64,68))
+df3<- data.frame(x="C", y=c(48,57,59,47,49))
+df <- rbind(df1,df2,df3)
+summary(aov(y~x, data = df))
+
+```
+
+### Example 10: Market Share Study : fitness test
+
+```{r}
+f<- c(48,98,54) #observed proportion 
+p<-c(0.3,0.5,0.2) #expected proportion
+chisq.test(x=f,
+           p=p)
+```
+
+### Example 11: Beer Drinkers : Chi-square test
+
+```{r}
+df <- data.frame(Lighth = c(20,30),
+                Regular = c(40,30),
+                Dark=c(20,10))
+rownames(df) <- c("Male", "Female")
+chisq.test(df)
+
+```
+
+### Example 12: Grocery Store
+
+```{r}
+#Version 1 without sign.
+x <- c(485,562,415,860,426,474,662,380,515,721)
+m <- 450
+binom.test(sum(x>m),length(x))
+#Version 2 using sign library BSDA
+library(BSDA)
+SIGN.test(x=x,md=m,alternative = "two.sided", conf.level=0.95)
+
+```
+
+### Example 13: Manufacturing
+
+```{r}
+x <- c(10.2, 9.6, 9.2, 10.6, 9.9, 16.2, 10.6, 10.0, 11.2, 10.7, 10.6)
+y <- c(9.5, 9.8, 8.8, 10.1, 10.3, 9.3, 10.5, 10.0, 10.6, 10.2, 6.2)
+wilcox.test(x=x,y=y, alternative = "two.sided", conf.level = 0.95, paired =TRUE, correct=FALSE,exact=FALSE) 
+
+#P-value to compete. 
+
+
+```
+
+### Example 14: Employee Performance
+
+```{r}
+x<-c(15,3,23,8)
+y<-c(18,20,32,9,25)
+wilcox.test(x=x,y=y, alternative = "two.sided", conf.level = 0.95, paired = FALSE, correct=TRUE)
+
+```
+
+### Example 15: Annual Performance Report
+
+```{r}
+df1<-data.frame(x="A",y=c(25,70,60,85,95,90,80))
+df2<-data.frame(x="B",y=c(60,20,30,15,40,35))
+df3<-data.frame(x="C",y=c(50,70,60,80,90,70,75))
+df<-rbind(df1,df2,df3)
+kruskal.test(y~x,data=df)
+
+```
+
+### Example 16: Sales Potential
+
+```{r}
+x<-c(2,4,7,1,6,3,10,9,8,5)
+y<-c(1,3,5,6,7,4,10,8,9,2)
+cor(x=x,y=y,method="spearman")
+cor.test(x=x,y=y,method="spearman")
+```
+
+# 2. Exercise
+
+### Exercise 1: Turtle's Weight
+
+A team of researchers try to investigate whether the mean weight of a
+particular turtle species is 300 pounds. We collected a simple random
+sample with the following weights: 290, 305, 310, 301, 304, 299, 290,
+298, 295, 293, 295, 291, 293 Please perform an appropriate test and draw
+a conclusion with 0.1 level of significance.
+
+```{r}
+# Here we are testing the average weight of a turtle species based on the sample we produced : let's compute the weight of the turtle.
+#H0 : mu = 300
+#H1 : mu != 300
+sample <- c(290, 305, 310, 301, 304, 299, 290, 298, 295, 293, 295, 291, 293 )
+t.test(x=sample,
+       mu=300,
+       alternative="two.sided",
+       conf.level= 0.90)
+#The p-value is < ɑ wich means that we reject H0.
+#we don't enough eviendence to prove with 10% confidence that the average weight of the population of turtle is not 300 pounds.
+```
+
+You conclusion : The p-value is \> ɑ meaning that we can't reject H0. we
+don't have enough evidence to prove with 10% confidence that the average
+weight of the population of turtle is 300 pounds.
+
+### Exercise 2: Jump Height
+
+A study is to check whether or not a specific training program can
+increase the max vertical jumps. The researchers recruit a simple random
+sample of 15 college students and measure each of their max vertical
+jumps. Then, they go through the training program and get their second
+measures at the end of the program. The following data show the measures
+(in inches) before and after the training program: Before: 25, 22, 22,
+24, 20, 18, 19, 19, 20, 22, 25, 24, 23, 22, 21 After: 27, 21, 23, 23,
+25, 20, 24, 18, 22, 23, 28, 24, 25, 24, 20 Is there a significant
+improvement of their jumps after the training program? Please perform an
+appropriate test and draw a conclusion with 0.01 level of significance
+(assuming the measures follow a normal distribution).
+
+```{r}
+# Here we are inspecting the same sample of 15 college students, two time, the goal is to assess the efficacity of their training. To do so we are going to compare the average maximum vertical jumpa before and after training.
+#Let's assess H0 :  mu2 -mu1 =0
+#             H1 :  mu2 -mu1 >0
+#We assume the the jumping height is following a normal distribution
+# The approriate test is a Paired sample t-test.
+#n = 15
+#a = 1-0.99 = 0.01
+
+jump_1<- c(25, 22, 22, 24, 20, 18, 19, 19, 20, 22, 25, 24, 23, 22, 21)
+jump_2<- c(27, 21, 23, 23, 25, 20, 24, 18, 22, 23, 28, 24, 25, 24, 20)
+
+t.test(x<-jump_2,
+       y<-jump_1,
+       alternative <- "greater",
+       conf.level = 0.99,
+       paired = TRUE)
+#Here we assess a p-value = 0.9917 > 0.01 meaning that with a 1% precison the hypothesis H0 can't be rejected at this level of precision. The training does not have a major impact on the performance of the student. 
+```
+
+You conclusion: Here we assess a p-value = 0.08283 \< 0.01 meaning that
+with a 1% precision the hypothesis H0 can be rejected at this level of
+precision. The training does have an impact on the performance of the
+students.
+
+### Exercise 3: Medicine Effectiveness
+
+A team of researchers would like to determine if the proportion of
+people who responded positively to the medicine is different between two
+groups. In the first group, 130 out of 200 people responded positively.
+In the second group, 50 out of 100 people responded positively to the
+medicine. Please perform an appropriate test and draw a conclusion with
+0.05 level of significance.
+
+```{r}
+#Here we are measuring the proportion of people that answered positevly to a medicine beween two unpaired group with a different sample size. The level of signifiance is a = 0.05
+#Hypothesis statement : 
+#H0 = P1 - p2 =  0
+#H1 = P1 - p2 != 0
+#Z-test
+x<- c(50, 130)
+n <-c(100,200)
+prop.test(x<-x,
+          n<-n,
+          alternative= "two.sided",
+          conf.level = 0.95,
+          correct = FALSE)
+
+```
+
+You conclusion: Here the p-value = 0.01242 \< 0.05 meaning that there is
+a significant difference in the proportion of positive reaction between
+group 1 and 2. Hence we reject H0. The scientific should investigate
+their sample.
+
+### Exercise 4: Body Height
+
+A research institution would like to compare the average height of
+adults in three different regions (A, B, and C). The researchers then
+randomly sample of 8 adults from these regions and record their heights
+as below: Region A: 180, 183, 172, 178, 169, 179, 178, 180 Region B:
+185, 181, 180, 179, 164, 173, 180, 178 Region C: 170, 183, 180, 175,
+181, 182, 176, 167 Please perform an appropriate test and draw a
+conclusion with 0.05 level of significance.
+
+```{r}
+#Hypothesis statement :
+#H0 = UI = UII = UIII
+#H1 = At least one of the group is different. 
+#Test : ANOVA Test to assess a difference in mean between the 3 regions.
+dFA<- data.frame(x="A", y=c(180, 183, 172, 178, 169, 179, 178, 180))
+dFB <- data.frame(x="B", y=c(185, 181, 180, 179, 164, 173, 180, 178))
+dFC<- data.frame(x="C", y=c(170, 183, 180, 175, 181, 182, 176, 167))
+df<-rbind(dFA,dFB,dFC)
+summary(aov(y~x, data=df))
+```
+
+The p-value (0.408) is greater than 0.05, so we fail to reject the null
+hypothesis. This means there is no significant difference in the average
+heights of adults among the three regions (A, B, and C) at the 5%
+significance level.
+
+### Exercise 5: Tire Quality
+
+An operations manager would like to determine whether the quality of
+work depends on the three daily shifts. She randomly selects 496 tires
+and inspects them. Each tire can be classified as perfect, satisfactory,
+or defective. The following table summarizes the inspection results:
+Perfect Satisfactory Defective Shift 1: 106 124 1 Shift 2: 67 85 1 Shift
+3: 37 72 3 Please perform an appropriate test and draw a conclusion with
+0.05 level of significance.
+
+```{r}
+
+#H0 : P(Quality∣Shift)=P(Quality)
+#H1 : P(Quality∣Shift)!=P(Quality)
+#We are here going for a 
+df<-data.frame(shift1 = c(106,124,1),
+               shift2 = c(67,85,1),
+               shift3 = c(37,72,3))
+rownames(df)<-c("Perfect","Satisfactory","Defective")
+chisq.test(df)
+
+
+
+```
+
+You conclusion: I fail to reject the null hypothesis, which states that
+the shifts and the quality of work are independent. With a p-value of
+0.07056 (greater than the significance level of 0.05), there isn’t
+enough statistical evidence to conclude that the quality of work depends
+on the shifts.
+
+However, the warning about the Chi-squared approximation being
+potentially incorrect makes me cautious about fully trusting these
+results. The size of the sample is inducting an error in the use of the
+Chi-square test because the N parameter of a non parametric test might
+be more suited to analyse the link between quality and shift.
+
+### Exercise 6: Clinical Trial
+
+Consider a Phase II clinical trial designed to investigate the
+effectiveness of a new drug to reduce symptoms of asthma in children. A
+total of n=10 participants are randomized to receive either the new drug
+or a placebo. Participants are asked to record the number of episodes of
+shortness of breath over a 1 week period following receipt of the
+assigned treatment. The data are shown below: Placebo: 7, 5, 6, 4, 12
+New Drug: 3, 6, 4, 2, 1 (No assumption of normal distribution for the
+data.) Is there a difference in the number of episodes of shortness of
+breath over a 1 week period in participants receiving the new drug as
+compared to those receiving the placebo? Please perform an appropriate
+test and draw a conclusion with 0.05 level of significance.
+
+```{r}
+#Here there is no normal distribution, moreover it seems that the test is based on two sample that are paired,our goal is to determine if there is a significant difference between the group that receive the placebo and the grouo that received the drug. In an hypothesis it is equivalent to :
+#H0 : the number of breath is identical between drug and placebo sample
+#H1 :  the number of breath is different between drug and placebo sample
+#Since we can't assess the normal distribution of values with two connected and ordinal variables we are going to use a MWW test.
+placebo<- c(7, 5, 6, 4, 12)
+drug <- c( 3, 6, 4, 2, 1)
+wilcox.test(x=placebo,y=drug,alternative="two.sided",conf.level=0.95,paired=FALSE, correct=TRUE)
+
+```
+
+You conclusion: At the 0.05 significance level, p \> a, there is
+sufficient evidence to conclude that the distribution of the number of
+shortness-of-breath episodes differs between the placebo and the drug
+groups.
+
+The test warning is due to an equality between the two sample : 6 breath
+in both placebo and drug group. It impose the use of Yate to adjust
+rank. To enhance the precision of our test and ensure true p-value we
+should expend the sample size to avoid this problem.
